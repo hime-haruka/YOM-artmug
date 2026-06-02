@@ -133,17 +133,21 @@
   function setIframeHeight(height) {
     var iframe = getIframe();
     if (!iframe) return;
+  
     var raw = Math.ceil(Number(height) || 0);
     if (!raw) return;
-    var next = Math.max(720, raw + 30);
-    if (lastHeight && Math.abs(next - lastHeight) < 24) return;
+  
+    var next = Math.max(720, raw);
+  
+    if (lastHeight && Math.abs(next - lastHeight) < 40) return;
+  
     iframe.style.height = next + 'px';
-    iframe.style.minHeight = next + 'px';
     iframe.style.maxHeight = 'none';
     iframe.style.overflow = 'hidden';
     iframe.height = String(next);
     iframe.setAttribute('height', String(next));
     iframe.setAttribute('scrolling', 'no');
+  
     lastHeight = next;
     sendViewport();
   }
