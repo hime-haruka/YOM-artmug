@@ -308,7 +308,15 @@
   }
 
   function contentHeight() {
-    return Math.max(document.body.scrollHeight, document.documentElement.scrollHeight, document.body.offsetHeight, document.documentElement.offsetHeight);
+    var app = document.getElementById('app');
+    if (!app) return 720;
+  
+    var rect = app.getBoundingClientRect();
+    var style = window.getComputedStyle(app);
+    var marginTop = parseFloat(style.marginTop) || 0;
+    var marginBottom = parseFloat(style.marginBottom) || 0;
+  
+    return Math.ceil(rect.height + marginTop + marginBottom);
   }
 
   function sendHeight() {
