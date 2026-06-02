@@ -96,7 +96,7 @@
     box.className = 'yom-artmug-parent-nav__box';
     var head = document.createElement('div');
     head.className = 'yom-artmug-parent-nav__head';
-    head.textContent = '퀵메뉴';
+    head.textContent = 'Quick Menu';
     var list = document.createElement('div');
     list.className = 'yom-artmug-parent-nav__list';
     MENU_ITEMS.forEach(function (item) {
