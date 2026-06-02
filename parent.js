@@ -5,6 +5,7 @@
   var IFRAME_SELECTOR = 'section[name="am-root"] iframe[src*="' + IFRAME_KEY + '"], [name="am-root"] iframe[src*="' + IFRAME_KEY + '"], iframe[src*="' + IFRAME_KEY + '"], section[name="am-root"] iframe, [name="am-root"] iframe';
   var STYLE_ID = 'yom-artmug-parent-style-v2';
   var NAV_ID = 'yom-artmug-parent-nav';
+  var MODAL_ID = 'yom-artmug-parent-image-modal';
   var lastHeight = 0;
   var retryTimer = null;
 
@@ -51,6 +52,13 @@
 .yom-artmug-parent-nav__button:hover:before,.yom-artmug-parent-nav__button.is-active:before{opacity:1}
 .yom-artmug-parent-nav__button:after{content:"";position:absolute;right:18px;top:50%;width:5px;height:5px;border-radius:999px;background:#c7b5ff;opacity:0;transform:translateY(-50%) scale(.6);transition:opacity .18s ease,transform .18s ease}
 .yom-artmug-parent-nav__button:hover:after,.yom-artmug-parent-nav__button.is-active:after{opacity:1;transform:translateY(-50%) scale(1)}
+
+.yom-artmug-image-modal{position:fixed;inset:0;z-index:1000000;display:none;align-items:center;justify-content:center;padding:34px;background:rgba(29,24,46,.62);backdrop-filter:blur(8px)}
+.yom-artmug-image-modal.is-open{display:flex}
+.yom-artmug-image-modal__panel{position:relative;display:flex;align-items:center;justify-content:center;max-width:min(92vw,1280px);max-height:88vh;border:1px solid rgba(221,212,255,.72);border-radius:24px;background:linear-gradient(135deg,rgba(255,255,255,.98),rgba(248,246,255,.96));box-shadow:0 28px 80px rgba(61,47,111,.34);overflow:hidden}
+.yom-artmug-image-modal__image{display:block;max-width:100%;max-height:88vh;width:auto;height:auto;object-fit:contain}
+.yom-artmug-image-modal__close{position:absolute;top:14px;right:14px;z-index:2;width:42px;height:42px;border:1px solid rgba(185,160,255,.5);border-radius:999px;background:rgba(255,255,255,.9);color:#6f55c8;font-size:24px;line-height:1;font-weight:700;cursor:pointer;box-shadow:0 10px 24px rgba(138,105,210,.18);transition:background .18s ease,transform .18s ease,color .18s ease}
+.yom-artmug-image-modal__close:hover{background:#efeaff;color:#5e43bd;transform:scale(1.04)}
 @media (max-width:900px){.yom-artmug-parent-nav{display:none!important}}
 `;
     document.head.appendChild(style);
@@ -154,6 +162,59 @@
     window.scrollTo({ top: Math.max(0, iframeTop + Number(targetY || 0) - 16), behavior: 'smooth' });
   }
 
+
+  function closeImageModal() {
+    var modal = document.getElementById(MODAL_ID);
+    if (!modal) return;
+    modal.classList.remove('is-open');
+    var img = modal.querySelector('.yom-artmug-image-modal__image');
+    if (img) img.removeAttribute('src');
+  }
+
+  function ensureImageModal() {
+    var modal = document.getElementById(MODAL_ID);
+    if (modal) return modal;
+
+    modal = document.createElement('div');
+    modal.id = MODAL_ID;
+    modal.className = 'yom-artmug-image-modal';
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+
+    var panel = document.createElement('div');
+    panel.className = 'yom-artmug-image-modal__panel';
+
+    var close = document.createElement('button');
+    close.type = 'button';
+    close.className = 'yom-artmug-image-modal__close';
+    close.setAttribute('aria-label', '이미지 닫기');
+    close.textContent = '×';
+
+    var img = document.createElement('img');
+    img.className = 'yom-artmug-image-modal__image';
+    img.alt = '샘플 이미지 크게 보기';
+
+    close.addEventListener('click', closeImageModal);
+    modal.addEventListener('click', function (event) {
+      if (event.target === modal) closeImageModal();
+    });
+
+    panel.appendChild(close);
+    panel.appendChild(img);
+    modal.appendChild(panel);
+    document.body.appendChild(modal);
+    return modal;
+  }
+
+  function openImageModal(src) {
+    if (!src) return;
+    var modal = ensureImageModal();
+    var img = modal.querySelector('.yom-artmug-image-modal__image');
+    if (!img) return;
+    img.src = src;
+    modal.classList.add('is-open');
+  }
+
   function bindMessages() {
     if (window.__yomArtmugParentMessageBind) return;
     window.__yomArtmugParentMessageBind = true;
@@ -167,10 +228,14 @@
       if (data.type === 'YOM_IFRAME_HEIGHT') setIframeHeight(data.height);
       if (data.type === 'YOM_PARENT_SCROLL_TO') scrollParentTo(data.targetY);
       if (data.type === 'YOM_ACTIVE_SECTION') setActive(data.sectionId);
+      if (data.type === 'YOM_OPEN_IMAGE_MODAL') openImageModal(data.src);
       if (data.type === 'YOM_IFRAME_READY') sendViewport();
     });
     window.addEventListener('scroll', sendViewport, { passive: true });
     window.addEventListener('resize', sendViewport);
+    window.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape') closeImageModal();
+    });
   }
 
   function prepareIframe() {
