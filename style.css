@@ -380,3 +380,11 @@ body:before{
   transform:none;
   pointer-events:none;
 }
+
+.sample-badge::before,
+.sample-badge::after,
+.sample-label::before,
+.sample-label::after{
+  display:none;
+  content:none;
+}
