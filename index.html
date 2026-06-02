@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="format-detection" content="telephone=no">
+  <title>YOM Live2D Rigging Portfolio</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <div id="app" class="page-shell">
+    <div class="loading" data-loading>
+      <span>YOM PORTFOLIO</span>
+      <strong>데이터를 불러오는 중입니다.</strong>
+    </div>
+    <main>
+      <section class="section profile-section" id="intro" data-section="intro">
+        <div class="section-head">
+          <span>01</span>
+          <h2>작가 소개</h2>
+        </div>
+        <div class="profile-card" data-profile></div>
+      </section>
+      <section class="section" id="works" data-section="works">
+        <div class="section-head">
+          <span>02</span>
+          <h2>작업 안내</h2>
+        </div>
+        <div class="product-layout" data-products></div>
+      </section>
+      <section class="section" id="notice" data-section="notice">
+        <div class="section-head">
+          <span>03</span>
+          <h2>안내 및 주의사항</h2>
+        </div>
+        <div class="notice-grid" data-notices></div>
+      </section>
+      <section class="section" id="event" data-section="event">
+        <div class="section-head">
+          <span>04</span>
+          <h2>협업 할인 및 이벤트</h2>
+        </div>
+        <div class="split-layout">
+          <div>
+            <h3 class="block-title">협업 작가</h3>
+            <div class="artist-grid" data-artists></div>
+          </div>
+          <div>
+            <h3 class="block-title">진행 이벤트</h3>
+            <div class="event-list" data-events></div>
+          </div>
+        </div>
+      </section>
+      <section class="section" id="process" data-section="process">
+        <div class="section-head">
+          <span>05</span>
+          <h2>작업 진행 안내</h2>
+        </div>
+        <div class="split-layout process-layout">
+          <div>
+            <h3 class="block-title">안내사항</h3>
+            <ul class="soft-list" data-progress></ul>
+          </div>
+          <div>
+            <h3 class="block-title">작업 과정</h3>
+            <ol class="step-list" data-steps></ol>
+          </div>
+        </div>
+      </section>
+      <section class="section form-section" id="form" data-section="form">
+        <div class="section-head">
+          <span>06</span>
+          <h2>신청 양식</h2>
+          <p>선택한 옵션을 기준으로 예상 견적을 계산해드려요 :)</p>
+        </div>
+        <form class="request-form" data-request-form>
+          <div class="form-grid">
+            <label class="field field--wide"><span>방송 닉네임 / 방송 주소</span><input type="text" name="channel" placeholder="닉네임 / 방송 주소를 입력해주세요"></label>
+            <fieldset class="field-group"><legend>기본 리깅</legend><div class="choice-grid" data-base-options></div></fieldset>
+            <fieldset class="field-group"><legend>SD 협업</legend><div class="choice-grid" data-collab-options></div></fieldset>
+            <fieldset class="field-group field-group--wide"><legend>추가 옵션</legend><div class="choice-grid choice-grid--multi" data-extra-options></div><label class="field detail-field is-hidden" data-arm-detail><span>팔 추가 상세 요청</span><input type="text" name="armDetail" placeholder="원하는 팔 추가 범위를 적어주세요"></label></fieldset>
+            <label class="field"><span>희망 일정</span><input type="date" name="date"></label>
+            <fieldset class="field-group"><legend>포트폴리오 사용 가능 여부</legend><div class="choice-grid"><label class="choice"><input type="radio" name="portfolioUse" value="YES"><span>YES</span></label><label class="choice"><input type="radio" name="portfolioUse" value="NO"><span>NO</span></label></div><label class="field detail-field is-hidden" data-portfolio-date><span>공개 가능일</span><input type="date" name="portfolioDate"></label></fieldset>
+            <label class="field field--wide"><span>그 외 요청사항</span><textarea name="memo" rows="6" placeholder="작업 범위, 파일 상태, 요청사항 등을 자유롭게 작성해주세요."></textarea></label>
+          </div>
+          <aside class="estimate-box">
+            <span>예상 견적</span>
+            <strong data-estimate>0원</strong>
+            <p data-estimate-note>문의가 필요한 항목이 포함되어 있을 경우, 상담 후 견적 금액이 달라질 수 있습니다.</p>
+            <div class="button-row"><button type="button" data-copy>양식 복사</button><button type="reset">초기화</button></div>
+          </aside>
+        </form>
+      </section>
+    </main>
+  </div>
+  <div class="toast" data-toast></div>
+  <script src="./app.js"></script>
+</body>
+</html>
