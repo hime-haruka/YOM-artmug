@@ -356,35 +356,5 @@ body:before{
 .product-group[data-category="ld_rigging"] .sample-image--large img{object-position:top center!important}
 @media (max-width:700px){.sample-guide{text-align:left;font-size:13px}.sample-image__zoom{opacity:1;transform:none}}
 
-.sample-badge,
-.sample-label{
-  position:absolute;
-  right:20px;
-  bottom:18px;
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  min-width:auto;
-  width:auto;
-  height:auto;
-  padding:7px 13px 6px;
-  border:0;
-  border-radius:999px;
-  background:rgba(255,255,255,.9);
-  color:#9a9d8e;
-  font-size:11px;
-  font-weight:800;
-  line-height:1;
-  letter-spacing:.12em;
-  box-shadow:none;
-  transform:none;
-  pointer-events:none;
-}
-
-.sample-badge::before,
-.sample-badge::after,
-.sample-label::before,
-.sample-label::after{
-  display:none;
-  content:none;
-}
+.sample-image::after {
+    display: none;
