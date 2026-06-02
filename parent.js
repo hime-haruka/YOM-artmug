@@ -50,6 +50,14 @@
 .yom-artmug-parent-nav__button:before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:#74836c;transform:scaleY(0);transform-origin:center;transition:transform .18s ease}
 .yom-artmug-parent-nav__button:hover:before,.yom-artmug-parent-nav__button.is-active:before{transform:scaleY(1)}
 
+.yom-artmug-image-modal{position:fixed;inset:0;z-index:1000000;display:flex;align-items:center;justify-content:center;padding:36px;background:rgba(20,24,20,.62);backdrop-filter:blur(8px);opacity:0;visibility:hidden;transition:opacity .18s ease,visibility .18s ease}
+.yom-artmug-image-modal.is-open{opacity:1;visibility:visible}
+.yom-artmug-image-modal__inner{position:relative;max-width:min(92vw,1180px);max-height:88vh;padding:14px;border:1px solid rgba(255,255,255,.36);border-radius:24px;background:rgba(252,251,247,.92);box-shadow:0 28px 80px rgba(0,0,0,.28)}
+.yom-artmug-image-modal__img{display:block;max-width:calc(92vw - 28px);max-height:calc(88vh - 28px);width:auto;height:auto;object-fit:contain;border-radius:16px;background:#fff}
+.yom-artmug-image-modal__close{position:absolute;right:12px;top:12px;width:38px;height:38px;border:0;border-radius:999px;background:rgba(25,31,24,.76);color:#fff;font:inherit;font-size:22px;line-height:38px;cursor:pointer}
+.yom-artmug-image-modal__close:hover{background:rgba(25,31,24,.92)}
+@media (max-width:700px){.yom-artmug-image-modal{padding:18px}.yom-artmug-image-modal__inner{max-width:96vw;max-height:86vh;padding:10px;border-radius:18px}.yom-artmug-image-modal__img{max-width:calc(96vw - 20px);max-height:calc(86vh - 20px);border-radius:12px}}
+
 @media (max-width:900px){.yom-artmug-parent-nav{display:none!important}}
 `;
     document.head.appendChild(style);
@@ -77,6 +85,30 @@
       type: 'YOM_PARENT_NAV_TO',
       sectionId: sectionId
     }, getOrigin());
+  }
+
+  function closeImageModal() {
+    var modal = document.getElementById('yom-artmug-image-modal');
+    if (modal) modal.classList.remove('is-open');
+  }
+
+  function openImageModal(src) {
+    if (!src) return;
+    var modal = document.getElementById('yom-artmug-image-modal');
+    if (!modal) {
+      modal = document.createElement('div');
+      modal.id = 'yom-artmug-image-modal';
+      modal.className = 'yom-artmug-image-modal';
+      modal.innerHTML = '<div class="yom-artmug-image-modal__inner"><button type="button" class="yom-artmug-image-modal__close" aria-label="닫기">×</button><img class="yom-artmug-image-modal__img" alt="샘플 이미지 확대"></div>';
+      modal.addEventListener('click', function (e) {
+        if (e.target === modal || e.target.classList.contains('yom-artmug-image-modal__close')) closeImageModal();
+      });
+      document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeImageModal(); });
+      document.body.appendChild(modal);
+    }
+    var img = modal.querySelector('.yom-artmug-image-modal__img');
+    if (img) img.src = src;
+    modal.classList.add('is-open');
   }
 
   function setActive(id) {
@@ -166,6 +198,7 @@
       if (data.type === 'YOM_PARENT_SCROLL_TO') scrollParentTo(data.targetY);
       if (data.type === 'YOM_ACTIVE_SECTION') setActive(data.sectionId);
       if (data.type === 'YOM_IFRAME_READY') sendViewport();
+      if (data.type === 'YOM_OPEN_IMAGE_MODAL') openImageModal(data.src);
     });
     window.addEventListener('scroll', sendViewport, { passive: true });
     window.addEventListener('resize', sendViewport);

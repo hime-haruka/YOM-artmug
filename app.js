@@ -163,7 +163,7 @@
       var sampleClass = 'sample-grid sample-grid--group sample-grid--count-' + Math.min(Math.max(imgs.length, 1), 3);
       var sample = imgs.length ? imgs.slice(0, 3).map(function (img) {
         var src = imageUrl(img.image_url);
-        return '<div class="sample-image sample-image--large"><img src="' + escapeHtml(src) + '" alt="' + escapeHtml(categoryTitle(category, items)) + ' sample"></div>';
+        return '<button type="button" class="sample-image sample-image--large" data-sample-modal data-full-src="' + escapeHtml(src) + '" aria-label="샘플 이미지 크게 보기"><img src="' + escapeHtml(src) + '" alt="' + escapeHtml(categoryTitle(category, items)) + ' sample"><span class="sample-image__zoom">크게 보기</span></button>';
       }).join('') : '<div class="sample-empty sample-empty--large">샘플 준비 중</div>';
       var notes = [];
       var optionHtml = items.map(function (item) {
@@ -173,7 +173,7 @@
         return '<article class="product-option" data-product-id="' + escapeHtml(item.product_id) + '"><div class="product-option__top"><h4>' + escapeHtml(item.title || '옵션명 없음') + '</h4>' + priceHtml + '</div></article>';
       }).join('');
       var noteHtml = notes.length ? '<div class="product-notes">' + notes.join('') + '</div>' : '';
-      return '<section class="product-group" data-category="' + escapeHtml(category) + '"><div class="product-group__media"><h3>' + escapeHtml(categoryTitle(category, items)) + '</h3><div class="' + sampleClass + '">' + sample + '</div></div><div class="product-group__options">' + optionHtml + '</div>' + noteHtml + '</section>';
+      return '<section class="product-group" data-category="' + escapeHtml(category) + '"><div class="product-group__media"><h3>' + escapeHtml(categoryTitle(category, items)) + '</h3><p class="sample-guide">샘플 이미지를 클릭하면 큰 화면으로 확인할 수 있습니다.</p><div class="' + sampleClass + '">' + sample + '</div></div><div class="product-group__options">' + optionHtml + '</div>' + noteHtml + '</section>';
     }).join('');
     setHtml('[data-products]', html || empty('작업 안내 데이터가 없습니다.'));
   }
@@ -296,6 +296,17 @@
     });
   }
 
+  function bindSampleModal() {
+    document.addEventListener('click', function (e) {
+      var sample = e.target.closest('[data-sample-modal]');
+      if (!sample) return;
+      e.preventDefault();
+      var src = sample.getAttribute('data-full-src');
+      if (!src) return;
+      parent.postMessage({ source: 'yom-artmug', type: 'YOM_OPEN_IMAGE_MODAL', src: src }, '*');
+    });
+  }
+
   function bindLinks() {
     document.addEventListener('click', function (e) {
       var linkButton = e.target.closest('[data-link]');
@@ -386,6 +397,7 @@
       renderFormOptions();
       bindForm();
       bindLinks();
+      bindSampleModal();
       markImages();
       updateEstimate();
       observeActive();
