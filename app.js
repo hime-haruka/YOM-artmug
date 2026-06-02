@@ -160,11 +160,19 @@
     var html = order.map(function (category) {
       var items = groups[category].sort(sortBy('dis_order'));
       var imgs = (imageMap[category] || []).filter(function (img) { return img.image_url; });
-      var sampleClass = 'sample-grid sample-grid--group sample-grid--count-' + Math.min(Math.max(imgs.length, 1), 3);
-      var sample = imgs.length ? imgs.slice(0, 3).map(function (img) {
+      var sampleItems = imgs.map(function (img) {
         var src = imageUrl(img.image_url);
-        return '<div class="sample-image sample-image--large"><img src="' + escapeHtml(src) + '" alt="' + escapeHtml(categoryTitle(category, items)) + ' sample"></div>';
-      }).join('') : '<div class="sample-empty sample-empty--large">샘플 준비 중</div>';
+        return '<button type="button" class="sample-image sample-image--large" data-sample-modal data-full-src="' + escapeHtml(src) + '" aria-label="샘플 이미지 크게 보기"><img src="' + escapeHtml(src) + '" alt="' + escapeHtml(categoryTitle(category, items)) + ' sample"><span class="sample-image__zoom">크게 보기</span></button>';
+      });
+      var sampleClass = 'sample-grid sample-grid--group sample-grid--count-' + Math.min(Math.max(imgs.length, 1), 2);
+      var sample = '';
+      if (!imgs.length) {
+        sample = '<div class="sample-grid sample-grid--group sample-grid--empty"><div class="sample-empty sample-empty--large">샘플 준비 중</div></div>';
+      } else if (imgs.length >= 3) {
+        sample = '<div class="sample-slider" data-sample-slider><button type="button" class="sample-slider__nav sample-slider__nav--prev" data-slide-prev aria-label="이전 샘플">‹</button><div class="sample-slider__viewport"><div class="sample-slider__track">' + sampleItems.join('') + '</div></div><button type="button" class="sample-slider__nav sample-slider__nav--next" data-slide-next aria-label="다음 샘플">›</button></div>';
+      } else {
+        sample = '<div class="' + sampleClass + '">' + sampleItems.join('') + '</div>';
+      }
       var notes = [];
       var optionHtml = items.map(function (item) {
         var priceHtml = '';
@@ -173,7 +181,7 @@
         return '<article class="product-option" data-product-id="' + escapeHtml(item.product_id) + '"><div class="product-option__top"><h4>' + escapeHtml(item.title || '옵션명 없음') + '</h4>' + priceHtml + '</div></article>';
       }).join('');
       var noteHtml = notes.length ? '<div class="product-notes">' + notes.join('') + '</div>' : '';
-      return '<section class="product-group" data-category="' + escapeHtml(category) + '"><div class="product-group__media"><h3>' + escapeHtml(categoryTitle(category, items)) + '</h3><div class="' + sampleClass + '">' + sample + '</div></div><div class="product-group__options">' + optionHtml + '</div>' + noteHtml + '</section>';
+      return '<section class="product-group" data-category="' + escapeHtml(category) + '"><div class="product-group__media"><h3>' + escapeHtml(categoryTitle(category, items)) + '</h3><p class="sample-guide">샘플 이미지를 클릭하면 큰 화면으로 확인할 수 있습니다.</p><div class="product-group__sample">' + sample + '</div></div><div class="product-group__options">' + optionHtml + '</div>' + noteHtml + '</section>';
     }).join('');
     setHtml('[data-products]', html || empty('작업 안내 데이터가 없습니다.'));
   }
@@ -296,6 +304,44 @@
     });
   }
 
+  function bindSampleModal() {
+    document.addEventListener('click', function (e) {
+      var sample = e.target.closest('[data-sample-modal]');
+      if (!sample) return;
+      e.preventDefault();
+      var src = sample.getAttribute('data-full-src');
+      if (!src) return;
+      parent.postMessage({ source: 'yom-artmug', type: 'YOM_OPEN_IMAGE_MODAL', src: src }, '*');
+    });
+  }
+
+  function bindSampleSlider() {
+    document.addEventListener('click', function (e) {
+      var prev = e.target.closest('[data-slide-prev]');
+      var next = e.target.closest('[data-slide-next]');
+      if (!prev && !next) return;
+      e.preventDefault();
+      e.stopPropagation();
+      var slider = (prev || next).closest('[data-sample-slider]');
+      if (!slider) return;
+      var viewport = slider.querySelector('.sample-slider__viewport');
+      var item = slider.querySelector('.sample-image');
+      if (!viewport || !item) return;
+      var track = slider.querySelector('.sample-slider__track');
+      var gap = track ? parseFloat(window.getComputedStyle(track).columnGap || window.getComputedStyle(track).gap) || 18 : 18;
+      var itemWidth = item.getBoundingClientRect().width || 0;
+      var perPage = window.matchMedia('(max-width: 520px)').matches ? 1 : 2;
+      var move = (itemWidth * perPage) + (gap * Math.max(0, perPage - 1));
+      var max = Math.max(0, viewport.scrollWidth - viewport.clientWidth);
+      var target = viewport.scrollLeft + (next ? move : -move);
+      target = Math.max(0, Math.min(max, target));
+      if (target >= max - 4 && next) target = max;
+      if (target <= 4 && prev) target = 0;
+      if (typeof viewport.scrollTo === 'function') viewport.scrollTo({ left: target, behavior: 'smooth' });
+      else viewport.scrollLeft = target;
+    });
+  }
+
   function bindLinks() {
     document.addEventListener('click', function (e) {
       var linkButton = e.target.closest('[data-link]');
@@ -308,7 +354,15 @@
   }
 
   function contentHeight() {
-    return Math.max(document.body.scrollHeight, document.documentElement.scrollHeight, document.body.offsetHeight, document.documentElement.offsetHeight);
+    var app = document.getElementById('app');
+    if (!app) return 720;
+  
+    var rect = app.getBoundingClientRect();
+    var style = window.getComputedStyle(app);
+    var marginTop = parseFloat(style.marginTop) || 0;
+    var marginBottom = parseFloat(style.marginBottom) || 0;
+  
+    return Math.ceil(rect.height + marginTop + marginBottom);
   }
 
   function sendHeight() {
@@ -378,6 +432,8 @@
       renderFormOptions();
       bindForm();
       bindLinks();
+      bindSampleModal();
+      bindSampleSlider();
       markImages();
       updateEstimate();
       observeActive();
