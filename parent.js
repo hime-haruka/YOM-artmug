@@ -38,18 +38,17 @@
     var style = document.createElement('style');
     style.id = STYLE_ID;
     style.textContent = `
-.yom-artmug-parent-nav{position:fixed;top:22px;right:22px;z-index:999999;width:218px;font-family:Paperozi,Pretendard,Apple SD Gothic Neo,Malgun Gothic,sans-serif;color:#3d3654}
+.yom-artmug-parent-nav{position:fixed;top:50%;right:22px;transform:translateY(-50%);z-index:999999;width:218px;font-family:Paperozi,Pretendard,Apple SD Gothic Neo,Malgun Gothic,sans-serif;color:#3d3654}
 .yom-artmug-parent-nav__box{position:relative;border:1px solid rgba(185,160,255,.42);border-radius:18px;background:rgba(255,255,255,.94);box-shadow:0 18px 44px rgba(138,105,210,.18);backdrop-filter:blur(12px);overflow:hidden}
 .yom-artmug-parent-nav__box:before{content:"";position:absolute;left:0;right:0;top:0;height:4px;background:linear-gradient(90deg,rgba(196,178,255,.18),rgba(158,126,235,.72),rgba(221,212,255,.42))}
 .yom-artmug-parent-nav__head{position:relative;display:flex;align-items:center;justify-content:center;gap:8px;padding:18px 18px 14px;border-bottom:1px solid rgba(190,170,245,.22);background:linear-gradient(180deg,rgba(250,247,255,.95),rgba(255,255,255,.76));font-size:15px;letter-spacing:.08em;font-weight:800;color:#7d65c8;text-align:center}
 .yom-artmug-parent-nav__list{display:flex;flex-direction:column;padding:10px 0}
 .yom-artmug-parent-nav__button{position:relative;appearance:none;width:100%;border:0;background:transparent;border-radius:0;padding:13px 20px 13px 24px;text-align:left;font:inherit;font-size:15px;font-weight:700;color:#49405f;cursor:pointer;transition:background .18s ease,color .18s ease,letter-spacing .18s ease}
 .yom-artmug-parent-nav__button:hover{background:linear-gradient(90deg,rgba(235,229,255,.98),rgba(248,246,255,.62));color:#6f55c8;letter-spacing:.01em}
-.yom-artmug-parent-nav__button.is-active{background:linear-gradient(90deg,rgba(222,212,255,.95),rgba(244,240,255,.72));color:#5e43bd}
 .yom-artmug-parent-nav__button:before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:#a98cff;opacity:0;transition:opacity .18s ease}
-.yom-artmug-parent-nav__button:hover:before,.yom-artmug-parent-nav__button.is-active:before{opacity:1}
+.yom-artmug-parent-nav__button:hover:before{opacity:1}
 .yom-artmug-parent-nav__button:after{content:"";position:absolute;right:18px;top:50%;width:5px;height:5px;border-radius:999px;background:#c7b5ff;opacity:0;transform:translateY(-50%) scale(.6);transition:opacity .18s ease,transform .18s ease}
-.yom-artmug-parent-nav__button:hover:after,.yom-artmug-parent-nav__button.is-active:after{opacity:1;transform:translateY(-50%) scale(1)}
+.yom-artmug-parent-nav__button:hover:after{opacity:1;transform:translateY(-50%) scale(1)}
 
 .yom-artmug-image-modal{position:fixed;inset:0;z-index:1000000;display:none;align-items:center;justify-content:center;padding:34px;background:rgba(29,24,46,.62);backdrop-filter:blur(8px)}
 .yom-artmug-image-modal.is-open{display:flex}
@@ -87,9 +86,7 @@
   }
 
   function setActive(id) {
-    document.querySelectorAll('.yom-artmug-parent-nav__button').forEach(function (button) {
-      button.classList.toggle('is-active', button.getAttribute('data-target') === id);
-    });
+    // 활성 메뉴 표시는 실제 스크롤 위치와 싱크가 어긋날 수 있어 사용하지 않습니다.
   }
 
   function buildNav() {
@@ -225,7 +222,6 @@
       if (data.source !== 'yom-artmug') return;
       if (data.type === 'YOM_IFRAME_HEIGHT') setIframeHeight(data.height);
       if (data.type === 'YOM_PARENT_SCROLL_TO') scrollParentTo(data.targetY);
-      if (data.type === 'YOM_ACTIVE_SECTION') setActive(data.sectionId);
       if (data.type === 'YOM_OPEN_IMAGE_MODAL') openImageModal(data.src);
       if (data.type === 'YOM_IFRAME_READY') sendViewport();
     });
