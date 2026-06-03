@@ -322,21 +322,31 @@
       if (!prev && !next) return;
       e.preventDefault();
       e.stopPropagation();
+
       var slider = (prev || next).closest('[data-sample-slider]');
       if (!slider) return;
+
       var viewport = slider.querySelector('.sample-slider__viewport');
-      var item = slider.querySelector('.sample-image');
-      if (!viewport || !item) return;
       var track = slider.querySelector('.sample-slider__track');
-      var gap = track ? parseFloat(window.getComputedStyle(track).columnGap || window.getComputedStyle(track).gap) || 18 : 18;
+      var item = slider.querySelector('.sample-image');
+      if (!viewport || !track || !item) return;
+
+      var styles = window.getComputedStyle(track);
+      var gap = parseFloat(styles.columnGap || styles.gap) || 18;
       var itemWidth = item.getBoundingClientRect().width || 0;
       var perPage = window.matchMedia('(max-width: 520px)').matches ? 1 : 2;
-      var move = (itemWidth * perPage) + (gap * Math.max(0, perPage - 1));
+      var move = Math.max(1, (itemWidth * perPage) + (gap * Math.max(0, perPage - 1)));
       var max = Math.max(0, viewport.scrollWidth - viewport.clientWidth);
-      var target = viewport.scrollLeft + (next ? move : -move);
-      target = Math.max(0, Math.min(max, target));
-      if (target >= max - 4 && next) target = max;
-      if (target <= 4 && prev) target = 0;
+      if (!max) return;
+
+      var current = viewport.scrollLeft || 0;
+      var target = current + (next ? move : -move);
+
+      if (next && current >= max - 6) target = 0;
+      else if (prev && current <= 6) target = max;
+      else if (next && target > max - 6) target = max;
+      else if (prev && target < 6) target = 0;
+
       if (typeof viewport.scrollTo === 'function') viewport.scrollTo({ left: target, behavior: 'smooth' });
       else viewport.scrollLeft = target;
     });
