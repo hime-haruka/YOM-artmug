@@ -948,7 +948,3 @@ body,
   .sample-slider{max-width:420px!important;padding-left:38px!important;padding-right:38px!important}
   .sample-slider .sample-image{flex-basis:100%!important;max-width:100%!important}
 }
-
-.product-option {
-    border-radius: 0;
-}
