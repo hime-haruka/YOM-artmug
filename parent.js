@@ -13,7 +13,7 @@
     { id: 'intro', label: '작가 소개' },
     { id: 'works', label: '작업 안내' },
     { id: 'notice', label: '안내사항' },
-    { id: 'event', label: '할인/이벤트' },
+    { id: 'event', label: '협업/이벤트' },
     { id: 'process', label: '진행 안내' },
     { id: 'form', label: '신청 양식' }
   ];

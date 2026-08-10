@@ -200,13 +200,26 @@
     setHtml('[data-notices]', html || empty('안내사항 데이터가 없습니다.'));
   }
 
+  function artistType(item) {
+    var category = clean(item && item.category).toUpperCase();
+    if (category.indexOf('LD') > -1) return 'LD';
+    if (category.indexOf('SD') > -1) return 'SD';
+    return '';
+  }
+
+  function renderArtistCards(rows) {
+    return rows.map(function (item) {
+      var img = imageUrl(item.thumb);
+      return '<article class="artist-card"><div class="artist-card__thumb">' + (img ? '<img src="' + escapeHtml(img) + '" alt="' + escapeHtml(item.name) + '">' : '') + '</div><div><h4>' + escapeHtml(item.name) + '</h4><p>' + escapeHtml(item.desc) + '</p>' + (item.link ? '<button type="button" data-link="' + escapeHtml(item.link) + '">작가 페이지 보기</button>' : '') + '</div></article>';
+    }).join('');
+  }
+
   function renderArtists(rows) {
     state.artists = rows.slice().sort(sortBy('order'));
-    var html = state.artists.map(function (item) {
-      var img = imageUrl(item.thumb);
-      return '<article class="artist-card"><div class="artist-card__thumb">' + (img ? '<img src="' + escapeHtml(img) + '" alt="' + escapeHtml(item.name) + '">' : '') + '</div><div><h4>' + escapeHtml(item.name) + '</h4><p>' + escapeHtml(item.category) + ' · ' + escapeHtml(item.desc) + '</p>' + (item.link ? '<button type="button" data-link="' + escapeHtml(item.link) + '">작가 페이지 보기</button>' : '') + '</div></article>';
-    }).join('');
-    setHtml('[data-artists]', html || empty('협업 작가 데이터가 없습니다.'));
+    var ld = state.artists.filter(function (item) { return artistType(item) === 'LD'; });
+    var sd = state.artists.filter(function (item) { return artistType(item) === 'SD'; });
+    setHtml('[data-artists-ld]', renderArtistCards(ld) || empty('LD 협업 작가 데이터가 없습니다.'));
+    setHtml('[data-artists-sd]', renderArtistCards(sd) || empty('SD 협업 작가 데이터가 없습니다.'));
   }
 
   function renderEvents(rows) {
@@ -229,12 +242,48 @@
     return '<label class="choice"><input type="' + type + '" name="' + name + '" value="' + escapeHtml(item.product_id || item.name) + '" data-title="' + escapeHtml(item.title || item.name) + '" data-price="' + escapeHtml(item.price || 0) + '" data-category="' + escapeHtml(item.category || '') + '" data-extra="' + escapeHtml(suffix || '') + '"><span>' + escapeHtml(item.title || item.name) + price + '</span></label>';
   }
 
+  function baseRigType(input) {
+    if (!input) return '';
+    var hint = [input.value, input.dataset.category, input.dataset.title].join(' ').toUpperCase();
+    if (hint.indexOf('LD') > -1) return 'LD';
+    if (hint.indexOf('SD') > -1) return 'SD';
+    return '';
+  }
+
+  function updateCollabOptions() {
+    var select = $('[data-collab-select]');
+    if (!select) return;
+    var base = $('input[name="baseOption"]:checked');
+    var type = baseRigType(base);
+    var current = select.value;
+    var label = $('[data-collab-label]');
+    var guide = $('[data-collab-guide]');
+
+    if (!type) {
+      select.disabled = true;
+      select.innerHTML = '<option value="">기본 리깅을 먼저 선택해주세요</option>';
+      if (label) label.textContent = '협업 작가';
+      if (guide) guide.textContent = 'LD/SD 선택에 맞춰 협업 작가가 표시됩니다.';
+      return;
+    }
+
+    var artists = state.artists.filter(function (item) { return artistType(item) === type; });
+    var options = ['<option value="">선택 안 함</option>'].concat(artists.map(function (item) {
+      return '<option value="' + escapeHtml(item.name) + '" data-title="' + escapeHtml(item.name) + '" data-category="' + escapeHtml(type) + '" data-desc="' + escapeHtml(item.desc) + '">' + escapeHtml(item.name) + '</option>';
+    }));
+    select.innerHTML = options.join('');
+    select.disabled = false;
+    if (artists.some(function (item) { return item.name === current; })) select.value = current;
+    if (label) label.textContent = type + ' 협업 작가';
+    if (guide) guide.textContent = artists.length ? type + ' 협업 작가 중 선택할 수 있습니다.' : type + ' 협업 작가가 아직 등록되지 않았습니다.';
+  }
+
   function renderFormOptions() {
     var base = state.products.filter(function (p) { return ['ld_rigging', 'sd_rigging'].indexOf(p.product_id) > -1 || ['ld_rigging', 'sd_rigging'].indexOf(p.category) > -1; });
     var extras = state.products.filter(function (p) { return base.indexOf(p) === -1 && p.product_id !== 'basic' && p.product_id !== 'etc_work'; });
     setHtml('[data-base-options]', base.map(function (item) { return makeChoice('radio', 'baseOption', item); }).join('') || empty('기본 옵션 데이터가 없습니다.'));
-    setHtml('[data-collab-options]', state.artists.map(function (item) { return makeChoice('radio', 'collab', item, item.desc); }).join('') + '<label class="choice"><input type="radio" name="collab" value="" data-title="선택 안 함" data-price="0"><span>선택 안 함</span></label>');
     setHtml('[data-extra-options]', extras.map(function (item) { return makeChoice('checkbox', 'extras', item); }).join('') || empty('추가 옵션 데이터가 없습니다.'));
+    updateCollabOptions();
   }
 
   function selectedInputs() {
@@ -259,14 +308,15 @@
     var form = $('[data-request-form]');
     var fd = new FormData(form);
     var base = $('input[name="baseOption"]:checked');
-    var collab = $('input[name="collab"]:checked');
+    var collab = $('[data-collab-select]');
+    var collabOption = collab && collab.options[collab.selectedIndex];
     var extras = $all('input[name="extras"]:checked').map(function (i) { return i.dataset.title + (isPaid(i.dataset.price) ? ' (' + money(i.dataset.price) + ')' : ' (문의)'); });
     var portfolio = $('input[name="portfolioUse"]:checked');
     return [
       '[Live2D 리깅 신청 양식]',
       '방송 닉네임 / 방송 주소: ' + clean(fd.get('channel')),
       '기본 리깅: ' + (base ? base.dataset.title + ' (' + money(base.dataset.price) + ')' : '미선택'),
-      'SD 협업: ' + (collab && collab.value ? collab.dataset.title + ' / ' + clean(collab.dataset.extra) : '선택 안 함'),
+      '협업 작가: ' + (collabOption && collabOption.value ? collabOption.dataset.title + ' (' + clean(collabOption.dataset.category) + ') / ' + clean(collabOption.dataset.desc) : '선택 안 함'),
       '추가 옵션: ' + (extras.length ? extras.join(', ') : '없음'),
       '팔 추가 상세: ' + clean(fd.get('armDetail')),
       '희망 일정: ' + clean(fd.get('date')),
@@ -298,9 +348,17 @@
 
   function bindForm() {
     var form = $('[data-request-form]');
-    form.addEventListener('change', updateEstimate);
+    form.addEventListener('change', function (event) {
+      if (event.target && event.target.name === 'baseOption') updateCollabOptions();
+      updateEstimate();
+    });
     form.addEventListener('input', updateEstimate);
-    form.addEventListener('reset', function () { setTimeout(updateEstimate, 0); });
+    form.addEventListener('reset', function () {
+      setTimeout(function () {
+        updateCollabOptions();
+        updateEstimate();
+      }, 0);
+    });
     $('[data-copy]').addEventListener('click', function () {
       copyText(requestText()).then(function () { toast('신청 양식을 복사했습니다.'); });
     });

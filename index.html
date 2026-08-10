@@ -43,7 +43,16 @@
         <div class="split-layout">
           <div>
             <h3 class="block-title">협업 작가</h3>
-            <div class="artist-grid" data-artists></div>
+            <div class="artist-category-list">
+              <section class="artist-category">
+                <h4 class="artist-category__title">LD 협업</h4>
+                <div class="artist-grid" data-artists-ld></div>
+              </section>
+              <section class="artist-category">
+                <h4 class="artist-category__title">SD 협업</h4>
+                <div class="artist-grid" data-artists-sd></div>
+              </section>
+            </div>
           </div>
           <div>
             <h3 class="block-title">진행 이벤트</h3>
@@ -77,7 +86,7 @@
           <div class="form-grid">
             <label class="field field--wide"><span>방송 닉네임 / 방송 주소</span><input type="text" name="channel" placeholder="닉네임 / 방송 주소를 입력해주세요"></label>
             <fieldset class="field-group"><legend>기본 리깅</legend><div class="choice-grid" data-base-options></div></fieldset>
-            <fieldset class="field-group"><legend>SD 협업</legend><div class="choice-grid" data-collab-options></div></fieldset>
+            <label class="field collab-select-field"><span data-collab-label>협업 작가</span><select name="collab" data-collab-select disabled><option value="">기본 리깅을 먼저 선택해주세요</option></select><em data-collab-guide>LD/SD 선택에 맞춰 협업 작가가 표시됩니다.</em></label>
             <fieldset class="field-group field-group--wide"><legend>추가 옵션</legend><div class="choice-grid choice-grid--multi" data-extra-options></div><label class="field detail-field is-hidden" data-arm-detail><span>팔 추가 상세 요청</span><input type="text" name="armDetail" placeholder="원하는 팔 추가 범위를 적어주세요"></label></fieldset>
             <label class="field"><span>희망 일정</span><input type="date" name="date"></label>
             <fieldset class="field-group"><legend>포트폴리오 사용 가능 여부</legend><div class="choice-grid"><label class="choice"><input type="radio" name="portfolioUse" value="YES"><span>YES</span></label><label class="choice"><input type="radio" name="portfolioUse" value="NO"><span>NO</span></label></div><label class="field detail-field is-hidden" data-portfolio-date><span>공개 가능일</span><input type="date" name="portfolioDate"></label></fieldset>
