@@ -257,13 +257,11 @@
     var type = baseRigType(base);
     var current = select.value;
     var label = $('[data-collab-label]');
-    var guide = $('[data-collab-guide]');
 
     if (!type) {
       select.disabled = true;
       select.innerHTML = '<option value="">기본 리깅을 먼저 선택해주세요</option>';
       if (label) label.textContent = '협업 작가';
-      if (guide) guide.textContent = 'LD/SD 선택에 맞춰 협업 작가가 표시됩니다.';
       return;
     }
 
@@ -275,7 +273,6 @@
     select.disabled = false;
     if (artists.some(function (item) { return item.name === current; })) select.value = current;
     if (label) label.textContent = type + ' 협업 작가';
-    if (guide) guide.textContent = artists.length ? type + ' 협업 작가 중 선택할 수 있습니다.' : type + ' 협업 작가가 아직 등록되지 않았습니다.';
   }
 
   function renderFormOptions() {
