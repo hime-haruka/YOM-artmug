@@ -1,8 +1,10 @@
 (function () {
   'use strict';
 
-  var IFRAME_KEY = 'yom-artmug';
-  var IFRAME_SELECTOR = 'section[name="am-root"] iframe[src*="' + IFRAME_KEY + '"], [name="am-root"] iframe[src*="' + IFRAME_KEY + '"], iframe[src*="' + IFRAME_KEY + '"], section[name="am-root"] iframe, [name="am-root"] iframe';
+  var IFRAME_ORIGIN = 'https://hime-haruka.github.io';
+  var IFRAME_PATH = 'hime-haruka.github.io/YOM-artmug';
+  var IFRAME_KEY = 'YOM-artmug';
+  var IFRAME_SELECTOR = 'section[name="am-root"] iframe[src*="' + IFRAME_PATH + '"], [name="am-root"] iframe[src*="' + IFRAME_PATH + '"], iframe[src*="' + IFRAME_PATH + '"], section[name="am-root"] iframe[src*="' + IFRAME_KEY + '"], [name="am-root"] iframe[src*="' + IFRAME_KEY + '"], iframe[src*="' + IFRAME_KEY + '"], section[name="am-root"] iframe, [name="am-root"] iframe';
   var STYLE_ID = 'yom-artmug-parent-style-v2';
   var NAV_ID = 'yom-artmug-parent-nav';
   var MODAL_ID = 'yom-artmug-parent-image-modal';
@@ -23,9 +25,7 @@
   }
 
   function getOrigin() {
-    var iframe = getIframe();
-    if (!iframe || !iframe.src) return '*';
-    try { return new URL(iframe.src, location.href).origin; } catch (e) { return '*'; }
+    return IFRAME_ORIGIN;
   }
 
   function getPageScrollY() {
